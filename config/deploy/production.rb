@@ -1,32 +1,29 @@
-# Automatic 'bundle install' after deploy
-require 'bundler/capistrano'
+set :stage, :production
 
-# Application name
-set :application, 'michaelbrawn'
+# Simple Role Syntax
+# ==================
+# Supports bulk-adding hosts to roles, the primary
+# server in each group is considered to be the first
+# unless any hosts have the primary property set.
 
-# BlueHost SSH user
-set :user, 'sticksn3_rails'
+role :app, %w{sticksnstonesart.ca}
+role :web, %w{sticksnstonesart.ca}
+role :db,  %w{sticksnstonesart.ca}
 
-# App Domain
-set :domain, 'sticksnstonesart.ca'
-
-# We don't need sudo on BlueHost
+# Extended Server Syntax
+# ======================
+# This can be used to drop a more detailed server
+# definition into the server list. The second argument
+# something that quacks like a hash can be used to set
+# extended properties on the server.
+server 'sticksnstonesart.ca', user: 'sticksn3_rails', roles: %w{web app}, application: "michaelbrawn"
 set :use_sudo, false
-
-# git is our SCM
 set :scm, :git
-
-# master is our default git branch
-set :branch, 'master'
-
-# Use local git repository
-set :repository, '.'
-
-# Checkout, compress and send a local copy
+set :branch, "master"
+set :repository, "."
 set :deploy_via, :copy
 set :deploy_to, "/home/#{user}/rails_apps/#{application}"
 
-# We have all components of the app on the same server
 server domain, :app, :web, :db, :primary => true
 
 namespace :deploy do
@@ -40,4 +37,27 @@ namespace :deploy do
 end
 
 # Clean-up old releases
-after 'deploy:restart', 'deploy:cleanup'
+after "deploy:restart", "deploy:cleanup"
+# you can set custom ssh options
+# it's possible to pass any option but you need to keep in mind that net/ssh understand limited list of options
+# you can see them in [net/ssh documentation](http://net-ssh.github.io/net-ssh/classes/Net/SSH.html#method-c-start)
+# set it globally
+#  set :ssh_options, {
+#    keys: %w(/home/rlisowski/.ssh/id_rsa),
+#    forward_agent: false,
+#    auth_methods: %w(password)
+#  }
+# and/or per server
+# server 'example.com',
+#   user: 'user_name',
+#   roles: %w{web app},
+#   ssh_options: {
+#     user: 'user_name', # overrides user setting above
+#     keys: %w(/home/user_name/.ssh/id_rsa),
+#     forward_agent: false,
+#     auth_methods: %w(publickey password)
+#     # password: 'please use keys'
+#   }
+# setting per server overrides global ssh_options
+
+# fetch(:default_env).merge!(rails_env: :production)
